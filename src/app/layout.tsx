@@ -1,20 +1,18 @@
 import type { Metadata } from "next";
-// 1. Import Font dari Google
-import { Montserrat, Lato } from "next/font/google"; 
+// 1. Import Manrope and Inter from Google Fonts
+import { Manrope, Inter } from "next/font/google"; 
 import "./globals.css";
 import { ThirdwebProvider } from "thirdweb/react";
 
-// 2. Konfigurasi Font Montserrat (Untuk Judul)
-const montserrat = Montserrat({ 
+// 2. Configure Manrope (For Headings - Bold/Professional)
+const manrope = Manrope({ 
   subsets: ["latin"], 
-  weight: ["700"], // Bold only
-  variable: "--font-heading", // Kita kasih nama variabel
+  variable: "--font-heading", 
 });
 
-// 3. Konfigurasi Font Lato (Untuk Body/Teks Biasa)
-const lato = Lato({ 
+// 3. Configure Inter (For Body/Default Text - Clean/Readable)
+const inter = Inter({ 
   subsets: ["latin"], 
-  weight: ["400", "700"], // Regular & Bold
   variable: "--font-body",
 });
 
@@ -30,12 +28,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      {/* 4. Masukkan kedua font ke dalam Body */}
+      {/* 4. Inject both fonts into the Body class */}
       <body 
-        className={`${lato.variable} ${montserrat.variable}`} 
+        className={`${inter.variable} ${manrope.variable}`} 
         suppressHydrationWarning={true}
-        // Set default font ke Lato
-        style={{ fontFamily: "var(--font-body)" }} 
+        style={{ 
+          margin: 0,
+          padding: 0,
+          fontFamily: "var(--font-body)",
+          backgroundColor: "#F0F4F8" // Matches the new soft page background
+        }} 
       >
         <ThirdwebProvider>
           {children}

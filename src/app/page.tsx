@@ -9,39 +9,40 @@ import imageCompression from 'browser-image-compression';
 import * as XLSX from 'xlsx';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
-// --- TEMA WARNA ---
+// --- UPDATED COLOR PALETTE (Soft & Professional Blue) ---
 const theme = {
-  primary: "#06b6d4", 
-  primaryDark: "#0891b2", 
-  secondary: "#334155", 
+  primary: "#3674B5",       // A calm, trustworthy professional blue (not neon)
+  primaryDark: "#1e40af",   // Darker blue for interactions
+  secondary: "#576F72",     // Muted slate/greenish grey for accents
   success: "#10b981", 
   danger: "#ef4444", 
-  bgPage: "#f1f5f9", 
+  bgPage: "#F0F4F8",        // Soft blue-grey background (Airy/Natural)
   bgCard: "#ffffff", 
-  bgInput: "#f8fafc", 
+  bgInput: "#F8FAFC", 
   textDark: "#1e293b", 
   textMedium: "#64748b", 
   textLight: "#94a3b8", 
-  border: "#e2e8f0", 
-  shadowCard: "0 10px 25px -5px rgb(0 0 0 / 0.05), 0 8px 10px -6px rgb(0 0 0 / 0.01)", 
+  border: "#cbd5e1", 
+  shadowCard: "0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -1px rgb(0 0 0 / 0.03)", 
   shadowModal: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
 };
 
-// Warna Chart Khusus
+// Chart Colors (Muted/Natural)
 const CHART_COLORS: Record<string, string> = {
-  Organic: "#10b981",   // Hijau
-  Plastic: "#f59e0b",   // Kuning
-  Hazardous: "#ef4444", // Merah
+  Organic: "#34D399",   // Soft Emerald
+  Plastic: "#FBBF24",   // Soft Amber
+  Hazardous: "#F87171", // Soft Red
 };
 
 const styles = {
-  pageContainer: { padding: "40px 20px", maxWidth: "1400px", margin: "0 auto", fontFamily: "'Inter', sans-serif" },
-  card: { backgroundColor: theme.bgCard, padding: "30px", borderRadius: "20px", boxShadow: theme.shadowCard, border: `1px solid ${theme.border}` },
-  headingLabel: { display: "block", fontWeight: "600", color: theme.textDark, fontSize: "14px", marginBottom: "8px", letterSpacing: "0.3px" },
-  input: { width: "100%", padding: "14px 16px", borderRadius: "12px", border: `1px solid ${theme.border}`, color: theme.textDark, backgroundColor: theme.bgInput, fontSize: "15px", outline: "none", transition: "all 0.2s" },
-  buttonPrimary: { width: "100%", backgroundColor: theme.primary, color: "white", fontWeight: "600", fontSize: "16px", padding: "16px", borderRadius: "12px", border: "none", cursor: "pointer", transition: "background 0.2s", boxShadow: "0 4px 6px -1px rgb(6 182 212 / 0.2)" },
+  pageContainer: { padding: "40px 20px", maxWidth: "1400px", margin: "0 auto", fontFamily: "var(--font-body)" },
+  card: { backgroundColor: theme.bgCard, padding: "30px", borderRadius: "16px", boxShadow: theme.shadowCard, border: `1px solid ${theme.border}` },
+  // Updated Heading Font to Manrope
+  headingLabel: { display: "block", fontWeight: "700", color: theme.textDark, fontSize: "13px", marginBottom: "8px", letterSpacing: "0.5px", fontFamily: "var(--font-heading)", textTransform: "uppercase" as const },
+  input: { width: "100%", padding: "14px 16px", borderRadius: "12px", border: `1px solid ${theme.border}`, color: theme.textDark, backgroundColor: theme.bgInput, fontSize: "15px", outline: "none", transition: "all 0.2s", fontFamily: "var(--font-body)" },
+  buttonPrimary: { width: "100%", backgroundColor: theme.primary, color: "white", fontWeight: "700", fontSize: "16px", padding: "16px", borderRadius: "12px", border: "none", cursor: "pointer", transition: "background 0.2s", boxShadow: "0 4px 12px rgba(54, 116, 181, 0.2)", fontFamily: "var(--font-heading)" },
   helperText: { fontSize: "13px", color: theme.textMedium, marginTop: "6px" },
-  badge: { padding: "6px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "600", display: "inline-block" },
+  badge: { padding: "6px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "600", display: "inline-block", fontFamily: "var(--font-heading)" },
 };
 
 export default function Home() {
@@ -144,14 +145,13 @@ export default function Home() {
     return result;
   }, [wasteLogs, searchTerm, sortConfig]);
 
-  // --- 🔥 LOGIKA DATA CHART (UPDATED) 🔥 ---
+  // --- CHART LOGIC ---
   const chartData = useMemo(() => {
     if (!wasteLogs) return [];
     const dataMap: Record<string, number> = { Organic: 0, Plastic: 0, Hazardous: 0 };
     
     wasteLogs.forEach((log) => {
         const type = log.wasteType;
-        // MURNI GRAM (Tanpa bagi 1000)
         const weightGrams = Number(log.weightInKg); 
         if (dataMap[type] !== undefined) {
             dataMap[type] += weightGrams;
@@ -211,11 +211,11 @@ export default function Home() {
       {/* HEADER */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" }}>
           <div>
-            <h1 style={{ color: theme.primary, fontSize: "2.5rem", margin: 0, fontWeight: "800", letterSpacing: "-1px" }}>🥗 Food Waste Tracker ♻️</h1>
-            <p style={{ color: theme.textMedium, fontSize: "16px", margin: "5px 0 0 0", fontWeight: "500" }}>Dashboard Pelacakan Limbah Terdesentralisasi</p>
+            <h1 style={{ color: theme.primary, fontSize: "2.2rem", margin: 0, fontWeight: "800", letterSpacing: "-0.5px", fontFamily: "var(--font-heading)" }}>Food Waste Tracker ♻️</h1>
+            <p style={{ color: theme.textMedium, fontSize: "15px", margin: "5px 0 0 0", fontWeight: "500" }}>Dashboard Pelacakan Limbah Terdesentralisasi</p>
           </div>
           <div style={{ transform: "scale(1)" }}>
-            <ConnectButton client={client} chain={chain} />
+            <ConnectButton client={client} chain={chain} theme={"light"} />
           </div>
       </div>
 
@@ -225,7 +225,7 @@ export default function Home() {
         {/* 1. KIRI: FORMULIR */}
         <div style={{ flex: "2", minWidth: "350px" }}>
             <div style={{ ...styles.card }}>
-                <h3 style={{ margin: "0 0 20px 0", color: theme.textDark }}>📝 Input Laporan Baru</h3>
+                <h3 style={{ margin: "0 0 20px 0", color: theme.textDark, fontFamily: "var(--font-heading)" }}>📝 Input Laporan Baru</h3>
                 <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                     <div>
                         <label style={styles.headingLabel}>⚖️ BERAT SAMPAH (GRAM)</label>
@@ -242,8 +242,8 @@ export default function Home() {
                         <div style={{ flex: 1 }}>
                             <label style={styles.headingLabel}>📍 LOKASI</label>
                             <div style={{ display: "flex", gap: "5px" }}>
-                                <input type="text" value={location} placeholder="Klik tombol ->" readOnly style={{...styles.input, backgroundColor: "#f1f5f9", cursor: "not-allowed"}} />
-                                <button onClick={handleGetLocation} style={{ padding: "0 15px", borderRadius: "12px", border: "none", backgroundColor: theme.secondary, color: "white", cursor: "pointer" }}>📍</button>
+                                <input type="text" value={location} placeholder="Klik tombol ->" readOnly style={{...styles.input, backgroundColor: theme.bgPage, cursor: "not-allowed"}} />
+                                <button onClick={handleGetLocation} style={{ padding: "0 15px", borderRadius: "12px", border: `1px solid ${theme.primary}`, backgroundColor: "transparent", color: theme.primary, cursor: "pointer", fontWeight: "600" }}>📍</button>
                             </div>
                         </div>
                     </div>
@@ -281,11 +281,9 @@ export default function Home() {
         {/* 2. KANAN: CHART ANALITIK (FIXED HEIGHT) */}
         <div style={{ flex: "1", minWidth: "300px" }}>
             <div style={{ ...styles.card, height: "100%", display: "flex", flexDirection: "column" }}>
-                <h3 style={{ margin: "0 0 10px 0", color: theme.textDark }}>📊 Komposisi Limbah</h3>
-                {/* ✅ UPDATED: Label Gram */}
+                <h3 style={{ margin: "0 0 10px 0", color: theme.textDark, fontFamily: "var(--font-heading)" }}>📊 Komposisi Limbah</h3>
                 <p style={{ fontSize: "13px", color: theme.textMedium, marginBottom: "20px" }}>Total berat (Gram) berdasarkan jenis sampah yang tercatat.</p>
                 
-                {/* ✅ UPDATED: Fixed Height for Chart Container */}
                 <div style={{ width: "100%", height: "300px" }}>
                     {chartData.length > 0 ? (
                         <ResponsiveContainer width="100%" height="100%">
@@ -312,8 +310,8 @@ export default function Home() {
                         </ResponsiveContainer>
                     ) : (
                         <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", color: theme.textLight, flexDirection: "column" }}>
-                            <span style={{ fontSize: "40px", marginBottom: "10px" }}>📉</span>
-                            Belum ada data
+                            <span style={{ fontSize: "40px", marginBottom: "10px", opacity: 0.5 }}>📉</span>
+                            <span style={{ fontSize: "14px" }}>Belum ada data</span>
                         </div>
                     )}
                 </div>
@@ -324,9 +322,9 @@ export default function Home() {
 
       {/* MODAL */}
       {showModal && (
-        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(30, 41, 59, 0.7)", backdropFilter: "blur(8px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
+        <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(30, 41, 59, 0.7)", backdropFilter: "blur(5px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
           <div style={{ ...styles.card, width: "90%", maxWidth: "500px", padding: "30px", boxShadow: theme.shadowModal, border: "none" }}>
-            <h2 style={{ margin: "0 0 20px 0", color: theme.textDark, textAlign: "center", fontWeight: "700" }}>⚠️ Konfirmasi Akhir</h2>
+            <h2 style={{ margin: "0 0 20px 0", color: theme.textDark, textAlign: "center", fontWeight: "700", fontFamily: "var(--font-heading)" }}>⚠️ Konfirmasi Akhir</h2>
             <div style={{ backgroundColor: theme.bgInput, padding: "20px", borderRadius: "16px", marginBottom: "25px", fontSize: "15px", color: theme.textDark, border: `1px solid ${theme.border}` }}>
               <div style={{ marginBottom: "10px", display: "flex", justifyContent: "space-between" }}><span style={{color: theme.textMedium}}>⚖️ Berat:</span> <strong>{weight} Gram</strong></div>
               <div style={{ marginBottom: "10px", display: "flex", justifyContent: "space-between" }}><span style={{color: theme.textMedium}}>🏷️ Jenis:</span> <strong>{type}</strong></div>
@@ -336,7 +334,7 @@ export default function Home() {
               {file && (<div style={{ textAlign: "center", marginTop: "20px" }}><img src={URL.createObjectURL(file)} alt="Preview" style={{ maxHeight: "180px", borderRadius: "12px", border: `1px solid ${theme.border}`, boxShadow: theme.shadowCard }} /></div>)}
             </div>
             <div style={{ display: "flex", gap: "15px" }}>
-              <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: "16px", borderRadius: "12px", border: `2px solid ${theme.border}`, backgroundColor: "white", color: theme.textMedium, fontWeight: "600", cursor: "pointer", transition: "all 0.2s" }}>Batal</button>
+              <button onClick={() => setShowModal(false)} style={{ flex: 1, padding: "16px", borderRadius: "12px", border: `1px solid ${theme.border}`, backgroundColor: "white", color: theme.textMedium, fontWeight: "600", cursor: "pointer", transition: "all 0.2s" }}>Batal</button>
               <div style={{ flex: 1 }}>
                 <TransactionButton
                   transaction={async () => {
@@ -358,12 +356,12 @@ export default function Home() {
       <div style={{ marginTop: "60px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", flexWrap: "wrap", gap: "15px" }}>
           <div>
-            <h3 style={{ color: theme.textDark, fontFamily: "'Inter', sans-serif", fontSize: "1.8rem", margin: 0, fontWeight: "700" }}>📊 Riwayat Laporan</h3>
+            <h3 style={{ color: theme.textDark, fontFamily: "var(--font-heading)", fontSize: "1.8rem", margin: 0, fontWeight: "700" }}>📊 Riwayat Laporan</h3>
             <p style={{ color: theme.textMedium, margin: "5px 0 0 0", fontSize: "14px" }}>Data tersimpan transparan di Blockchain</p>
           </div>
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
             <input type="text" placeholder="🔍 Cari ID, Jenis, Catatan..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ padding: "12px 20px", borderRadius: "100px", border: `1px solid ${theme.border}`, width: "100%", maxWidth: "350px", outline: "none", fontSize: "14px", backgroundColor: theme.bgCard, boxShadow: theme.shadowCard }} />
-            <button onClick={handleExportExcel} style={{ backgroundColor: theme.success, color: "white", padding: "10px 20px", borderRadius: "100px", border: "none", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 6px -1px rgb(16 185 129 / 0.2)" }}>📄 Download Excel</button>
+            <button onClick={handleExportExcel} style={{ backgroundColor: theme.primary, color: "white", padding: "10px 20px", borderRadius: "100px", border: "none", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 6px -1px rgba(54, 116, 181, 0.2)", fontFamily: "var(--font-heading)" }}>📄 Download Excel</button>
           </div>
         </div>
 
@@ -371,16 +369,16 @@ export default function Home() {
           {loadingLogs ? ( <div style={{ padding: "40px", textAlign: "center", color: theme.textMedium, fontStyle: "italic" }}>Sedang memuat data dari blockchain...</div> ) : (
             <>
               <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "900px" }}>
-                <thead style={{ backgroundColor: "#f8fafc", borderBottom: `2px solid ${theme.border}` }}>
+                <thead style={{ backgroundColor: theme.bgInput, borderBottom: `2px solid ${theme.border}` }}>
                   <tr>
-                    <th onClick={() => requestSort('kitchenId')} style={{ cursor: "pointer", padding: "18px", textAlign: "left", color: theme.textMedium, fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", textTransform: "uppercase" }}>ID DAPUR {getSortIcon('kitchenId')}</th>
-                    <th onClick={() => requestSort('timestamp')} style={{ cursor: "pointer", padding: "18px", textAlign: "left", color: theme.textMedium, fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", textTransform: "uppercase" }}>WAKTU {getSortIcon('timestamp')}</th>
-                    <th style={{ padding: "18px", textAlign: "center", color: theme.textMedium, fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", textTransform: "uppercase" }}>FOTO</th>
-                    <th onClick={() => requestSort('weightInKg')} style={{ cursor: "pointer", padding: "18px", textAlign: "center", color: theme.textMedium, fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", textTransform: "uppercase" }}>BERAT {getSortIcon('weightInKg')}</th>
-                    <th style={{ padding: "18px", textAlign: "center", color: theme.textMedium, fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", textTransform: "uppercase" }}>JENIS</th>
-                    <th style={{ padding: "18px", textAlign: "center", color: theme.textMedium, fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", textTransform: "uppercase" }}>PENGELOLAAN</th>
-                    <th style={{ padding: "18px", textAlign: "left", color: theme.textMedium, fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", textTransform: "uppercase" }}>KETERANGAN & LOKASI</th>
-                    <th style={{ padding: "18px", textAlign: "right", color: theme.textMedium, fontSize: "12px", fontWeight: "600", letterSpacing: "0.5px", textTransform: "uppercase" }}>BUKTI ONCHAIN</th>
+                    <th onClick={() => requestSort('kitchenId')} style={{ cursor: "pointer", padding: "18px", textAlign: "left", color: theme.textMedium, fontSize: "12px", fontWeight: "700", letterSpacing: "0.5px", textTransform: "uppercase", fontFamily: "var(--font-heading)" }}>ID DAPUR {getSortIcon('kitchenId')}</th>
+                    <th onClick={() => requestSort('timestamp')} style={{ cursor: "pointer", padding: "18px", textAlign: "left", color: theme.textMedium, fontSize: "12px", fontWeight: "700", letterSpacing: "0.5px", textTransform: "uppercase", fontFamily: "var(--font-heading)" }}>WAKTU {getSortIcon('timestamp')}</th>
+                    <th style={{ padding: "18px", textAlign: "center", color: theme.textMedium, fontSize: "12px", fontWeight: "700", letterSpacing: "0.5px", textTransform: "uppercase", fontFamily: "var(--font-heading)" }}>FOTO</th>
+                    <th onClick={() => requestSort('weightInKg')} style={{ cursor: "pointer", padding: "18px", textAlign: "center", color: theme.textMedium, fontSize: "12px", fontWeight: "700", letterSpacing: "0.5px", textTransform: "uppercase", fontFamily: "var(--font-heading)" }}>BERAT {getSortIcon('weightInKg')}</th>
+                    <th style={{ padding: "18px", textAlign: "center", color: theme.textMedium, fontSize: "12px", fontWeight: "700", letterSpacing: "0.5px", textTransform: "uppercase", fontFamily: "var(--font-heading)" }}>JENIS</th>
+                    <th style={{ padding: "18px", textAlign: "center", color: theme.textMedium, fontSize: "12px", fontWeight: "700", letterSpacing: "0.5px", textTransform: "uppercase", fontFamily: "var(--font-heading)" }}>PENGELOLAAN</th>
+                    <th style={{ padding: "18px", textAlign: "left", color: theme.textMedium, fontSize: "12px", fontWeight: "700", letterSpacing: "0.5px", textTransform: "uppercase", fontFamily: "var(--font-heading)" }}>KETERANGAN & LOKASI</th>
+                    <th style={{ padding: "18px", textAlign: "right", color: theme.textMedium, fontSize: "12px", fontWeight: "700", letterSpacing: "0.5px", textTransform: "uppercase", fontFamily: "var(--font-heading)" }}>BUKTI ONCHAIN</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -388,9 +386,10 @@ export default function Home() {
                     currentItems.map((log, index) => {
                       const { dateStr, timeStr } = formatDate(log.timestamp);
                       const rawGrams = Number(log.weightInKg);
-                      let typeColorBg = "#dcfce7"; let typeColorText = "#166534";
-                      if (log.wasteType === "Plastic") { typeColorBg = "#fef9c3"; typeColorText = "#a16207"; } 
-                      else if (log.wasteType === "Hazardous") { typeColorBg = "#fee2e2"; typeColorText = "#991b1b"; }
+                      // Softened badge colors
+                      let typeColorBg = "#E8F5E9"; let typeColorText = "#166534";
+                      if (log.wasteType === "Plastic") { typeColorBg = "#FFFBEB"; typeColorText = "#B45309"; } 
+                      else if (log.wasteType === "Hazardous") { typeColorBg = "#FEF2F2"; typeColorText = "#991b1b"; }
 
                       return (
                         <tr key={index} style={{ borderBottom: `1px solid ${theme.border}`, transition: "background 0.2s" }} onMouseOver={(e) => e.currentTarget.style.background = "#f8fafc"} onMouseOut={(e) => e.currentTarget.style.background = "transparent"}>
@@ -400,11 +399,11 @@ export default function Home() {
                              <div style={{ color: theme.textLight, fontSize: "12px", marginTop: "4px" }}>{timeStr}</div>
                           </td>
                           <td style={{ padding: "12px", verticalAlign: "middle", textAlign: "center" }}>
-                            <div style={{ width: "60px", height: "60px", borderRadius: "10px", overflow: "hidden", border: `2px solid ${theme.border}`, margin: "0 auto", cursor: "pointer", boxShadow: theme.shadowCard }} onClick={() => window.open(log.imageUrl.replace("ipfs://", "https://ipfs.io/ipfs/"), "_blank")}>
+                            <div style={{ width: "60px", height: "60px", borderRadius: "10px", overflow: "hidden", border: `1px solid ${theme.border}`, margin: "0 auto", cursor: "pointer", boxShadow: theme.shadowCard }} onClick={() => window.open(log.imageUrl.replace("ipfs://", "https://ipfs.io/ipfs/"), "_blank")}>
                                 <MediaRenderer client={client} src={log.imageUrl} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
                             </div>
                           </td>
-                          <td style={{ padding: "18px", textAlign: "center", fontWeight: "700", color: theme.primaryDark, fontSize: "15px" }}>{rawGrams.toLocaleString()} g</td>
+                          <td style={{ padding: "18px", textAlign: "center", fontWeight: "700", color: theme.primary, fontSize: "15px" }}>{rawGrams.toLocaleString()} g</td>
                           <td style={{ padding: "18px", textAlign: "center", verticalAlign: "middle" }}>
                              <span style={{ ...styles.badge, backgroundColor: typeColorBg, color: typeColorText }}>{log.wasteType}</span>
                           </td>
@@ -413,7 +412,7 @@ export default function Home() {
                           </td>
                           <td style={{ padding: "18px", verticalAlign: "middle" }}>
                             {log.notes ? <div style={{ fontSize: "13px", color: theme.textMedium, fontStyle: "italic", marginBottom: "8px" }}>“{log.notes}”</div> : <div style={{ fontSize: "13px", color: theme.textLight }}>-</div>}
-                            {log.coordinates && (<a href={`http://googleusercontent.com/maps.google.com/?q=${log.coordinates}`} target="_blank" style={{ fontSize: "12px", color: theme.primary, textDecoration: "none", fontWeight: "700", display: "inline-flex", alignItems: "center", backgroundColor: "#e0f2fe", padding: "4px 10px", borderRadius: "20px" }}>🗺️ Lihat Peta</a>)}
+                            {log.coordinates && (<a href={`http://googleusercontent.com/maps.google.com/?q=${log.coordinates}`} target="_blank" style={{ fontSize: "12px", color: theme.primary, textDecoration: "none", fontWeight: "700", display: "inline-flex", alignItems: "center", backgroundColor: "#E0F2FE", padding: "4px 10px", borderRadius: "20px" }}>🗺️ Lihat Peta</a>)}
                           </td>
                           <td style={{ padding: "18px", textAlign: "right", verticalAlign: "middle" }}>
                             <a href={`https://amoy.polygonscan.com/address/${log.kitchenId}`} target="_blank" style={{ color: theme.primary, textDecoration: "none", fontWeight: "700", fontSize: "12px", border: `1px solid ${theme.primary}`, padding: "6px 12px", borderRadius: "100px", display: "inline-block", transition: "all 0.2s" }} onMouseOver={(e) => {e.currentTarget.style.background = theme.primary; e.currentTarget.style.color = "white"}} onMouseOut={(e) => {e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = theme.primary}}>🔗 Explorer</a>
@@ -456,7 +455,7 @@ export default function Home() {
           )}
         </div>
       </div>
-      <div style={{ marginTop: "80px", textAlign: "center", color: theme.textLight, fontSize: "13px", fontWeight: "500" }}>Built on Polygon & IPFS · Copyright © Farhan Fadilla / Terra Horizon 2025</div>
+      <div style={{ marginTop: "80px", textAlign: "center", color: theme.textLight, fontSize: "13px", fontWeight: "500", fontFamily: "var(--font-heading)" }}>Built on Polygon & IPFS · Copyright © Farhan Fadilla / Terra Horizon 2025</div>
     </main>
   );
 }
