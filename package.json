@@ -14,7 +14,8 @@
     "next": "15.4.6",
     "react": "19.1.1",
     "react-dom": "19.1.1",
-    "thirdweb": "^5.112.4"
+    "thirdweb": "^5.112.4",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/node": "^20",
