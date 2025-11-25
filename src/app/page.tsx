@@ -7,14 +7,15 @@ import { upload } from "thirdweb/storage";
 import { client } from "./client"; 
 import imageCompression from 'browser-image-compression';
 import * as XLSX from 'xlsx';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 // --- TEMA WARNA ---
 const theme = {
-  primary: "#06b6d4", // Cyan 500
-  primaryDark: "#0891b2", // Cyan 600
-  secondary: "#334155", // Slate 700
-  success: "#10b981", // Emerald 500
-  danger: "#ef4444", // Red 500
+  primary: "#06b6d4", 
+  primaryDark: "#0891b2", 
+  secondary: "#334155", 
+  success: "#10b981", 
+  danger: "#ef4444", 
   bgPage: "#f1f5f9", 
   bgCard: "#ffffff", 
   bgInput: "#f8fafc", 
@@ -26,14 +27,19 @@ const theme = {
   shadowModal: "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
 };
 
-// --- STYLE OBJECT (SUDAH DIPERBAIKI) ---
+// Warna Chart Khusus
+const CHART_COLORS: Record<string, string> = {
+  Organic: "#10b981",   // Hijau
+  Plastic: "#f59e0b",   // Kuning
+  Hazardous: "#ef4444", // Merah
+};
+
 const styles = {
-  pageContainer: { padding: "60px 20px", maxWidth: "1200px", margin: "0 auto", fontFamily: "'Inter', sans-serif" },
-  card: { backgroundColor: theme.bgCard, padding: "40px", borderRadius: "20px", boxShadow: theme.shadowCard, border: `1px solid ${theme.border}` },
+  pageContainer: { padding: "40px 20px", maxWidth: "1400px", margin: "0 auto", fontFamily: "'Inter', sans-serif" },
+  card: { backgroundColor: theme.bgCard, padding: "30px", borderRadius: "20px", boxShadow: theme.shadowCard, border: `1px solid ${theme.border}` },
   headingLabel: { display: "block", fontWeight: "600", color: theme.textDark, fontSize: "14px", marginBottom: "8px", letterSpacing: "0.3px" },
   input: { width: "100%", padding: "14px 16px", borderRadius: "12px", border: `1px solid ${theme.border}`, color: theme.textDark, backgroundColor: theme.bgInput, fontSize: "15px", outline: "none", transition: "all 0.2s" },
   buttonPrimary: { width: "100%", backgroundColor: theme.primary, color: "white", fontWeight: "600", fontSize: "16px", padding: "16px", borderRadius: "12px", border: "none", cursor: "pointer", transition: "background 0.2s", boxShadow: "0 4px 6px -1px rgb(6 182 212 / 0.2)" },
-  // ✅ Fix: Menambahkan helperText yang tadi hilang
   helperText: { fontSize: "13px", color: theme.textMedium, marginTop: "6px" },
   badge: { padding: "6px 12px", borderRadius: "20px", fontSize: "12px", fontWeight: "600", display: "inline-block" },
 };
@@ -65,8 +71,6 @@ export default function Home() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: 'timestamp', direction: 'desc' });
-
-  // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
@@ -140,6 +144,26 @@ export default function Home() {
     return result;
   }, [wasteLogs, searchTerm, sortConfig]);
 
+  // --- 🔥 LOGIKA DATA CHART (UPDATED) 🔥 ---
+  const chartData = useMemo(() => {
+    if (!wasteLogs) return [];
+    const dataMap: Record<string, number> = { Organic: 0, Plastic: 0, Hazardous: 0 };
+    
+    wasteLogs.forEach((log) => {
+        const type = log.wasteType;
+        // MURNI GRAM (Tanpa bagi 1000)
+        const weightGrams = Number(log.weightInKg); 
+        if (dataMap[type] !== undefined) {
+            dataMap[type] += weightGrams;
+        }
+    });
+
+    return Object.keys(dataMap).map(key => ({
+        name: key,
+        value: dataMap[key]
+    })).filter(item => item.value > 0);
+  }, [wasteLogs]);
+
   // Pagination Logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -150,7 +174,6 @@ export default function Home() {
     if(pageNumber >= 1 && pageNumber <= totalPages) setCurrentPage(pageNumber);
   };
 
-  // Export Logic
   const handleExportExcel = () => {
     const dataToExport = processedLogs.map(log => ({
         "ID Dapur": log.kitchenId,
@@ -185,74 +208,121 @@ export default function Home() {
   return (
     <main style={{ ...styles.pageContainer, backgroundColor: theme.bgPage, minHeight: "100vh" }}>
       
-      {/* FORM CARD */}
-      <div style={{ ...styles.card, maxWidth: "800px", margin: "0 auto" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "35px" }}>
+      {/* HEADER */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "40px" }}>
           <div>
-            <h1 style={{ color: theme.primary, fontSize: "2.2rem", margin: 0, fontWeight: "800", letterSpacing: "-0.5px" }}>🥗 Food Waste Tracker ♻️</h1>
-            <p style={{ color: theme.textMedium, fontSize: "16px", margin: "8px 0 0 0", fontWeight: "500" }}>Sistem Pelacakan Limbah Dapur Terdesentralisasi</p>
+            <h1 style={{ color: theme.primary, fontSize: "2.5rem", margin: 0, fontWeight: "800", letterSpacing: "-1px" }}>🥗 Food Waste Tracker ♻️</h1>
+            <p style={{ color: theme.textMedium, fontSize: "16px", margin: "5px 0 0 0", fontWeight: "500" }}>Dashboard Pelacakan Limbah Terdesentralisasi</p>
           </div>
-          <div style={{ transform: "scale(0.95)", transformOrigin: "top right" }}>
+          <div style={{ transform: "scale(1)" }}>
             <ConnectButton client={client} chain={chain} />
           </div>
-        </div>
-        
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
-          <div>
-             <label style={styles.headingLabel}>⚖️ BERAT SAMPAH (GRAM)</label>
-             <input type="number" value={weight} placeholder="Contoh: 2500" onChange={(e) => setWeight(e.target.value)} style={styles.input} />
-             <div style={styles.helperText}>*Masukkan angka bulat dalam satuan <b>GRAM</b>. (Contoh: 1 Kg = input 1000).</div>
-          </div>
-
-          <div style={{ display: "flex", gap: "24px", flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: "250px" }}>
-                <label style={styles.headingLabel}>📸 BUKTI FOTO {isCompressing && <span style={{color: theme.primary, fontSize: "12px"}}>(Memproses...)</span>}</label>
-                <input type="file" accept="image/*" onChange={handleImageUpload} style={{...styles.input, padding: "10px"}} />
-                {file && <div style={{fontSize: "13px", color: theme.success, marginTop: "8px", fontWeight: "500"}}>✅ Foto siap ({(file.size / 1024).toFixed(0)} KB)</div>}
-            </div>
-            <div style={{ flex: 1, minWidth: "250px" }}>
-                <label style={styles.headingLabel}>📍 LOKASI DAPUR (GPS)</label>
-                <div style={{ display: "flex", gap: "10px" }}>
-                    <input type="text" value={location} placeholder="Klik tombol LOKASI →" readOnly style={{...styles.input, backgroundColor: "#f1f5f9", color: theme.textLight, cursor: "not-allowed"}} />
-                    <button onClick={handleGetLocation} style={{ padding: "0 24px", borderRadius: "12px", border: "none", backgroundColor: isLocating ? theme.textLight : theme.secondary, color: "white", fontWeight: "600", cursor: "pointer", transition: "background 0.2s" }}>
-                        {isLocating ? "..." : "🗺️ LOKASI"}
-                    </button>
-                </div>
-            </div>
-          </div>
-          
-          <div>
-            <label style={styles.headingLabel}>📝 CATATAN TAMBAHAN</label>
-            <input type="text" value={notes} maxLength={MAX_NOTES_LENGTH} placeholder="Keterangan singkat (cth: Sisa menu siang)..." onChange={(e) => setNotes(e.target.value)} style={styles.input} />
-            <div style={{ ...styles.helperText, textAlign: "right", color: notes.length >= MAX_NOTES_LENGTH ? theme.danger : theme.textLight }}>{notes.length} / {MAX_NOTES_LENGTH} Karakter</div>
-          </div>
-          
-          <div style={{ display: "flex", gap: "24px", flexWrap: "wrap" }}>
-            <div style={{ flex: 1, minWidth: "200px" }}>
-                <label style={styles.headingLabel}>🏷️ JENIS LIMBAH</label>
-                <select value={type} onChange={(e) => setType(e.target.value)} style={{...styles.input, appearance: "none" }}>
-                    <option value="Organic">🌱 Organik (Sisa Makanan)</option>
-                    <option value="Plastic">🛍️ Plastik / Kemasan</option>
-                    <option value="Hazardous">☢️ B3 (Berbahaya)</option>
-                </select>
-            </div>
-            <div style={{ flex: 1, minWidth: "200px" }}>
-                <label style={styles.headingLabel}>🚚 TUJUAN PENGELOLAAN</label>
-                <select value={method} onChange={(e) => setMethod(e.target.value)} style={{...styles.input, appearance: "none"}}>
-                    <option value="Maggot Farm">🪰 Maggot Farm (Budidaya)</option>
-                    <option value="Recycling Center">♻️ Pusat Daur Ulang</option>
-                    <option value="Landfill">🚛 TPA (Tempat Pembuangan Akhir)</option>
-                </select>
-            </div>
-          </div>
-
-          <div style={{ marginTop: "20px" }}>
-            <button onClick={handleReview} style={styles.buttonPrimary}>🔍 Review & Konfirmasi Data</button>
-          </div>
-        </div>
       </div>
 
-      {/* CONFIRMATION MODAL */}
+      {/* --- LAYOUT DUA KOLOM --- */}
+      <div style={{ display: "flex", gap: "30px", flexWrap: "wrap", alignItems: "flex-start" }}>
+        
+        {/* 1. KIRI: FORMULIR */}
+        <div style={{ flex: "2", minWidth: "350px" }}>
+            <div style={{ ...styles.card }}>
+                <h3 style={{ margin: "0 0 20px 0", color: theme.textDark }}>📝 Input Laporan Baru</h3>
+                <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+                    <div>
+                        <label style={styles.headingLabel}>⚖️ BERAT SAMPAH (GRAM)</label>
+                        <input type="number" value={weight} placeholder="Contoh: 2500" onChange={(e) => setWeight(e.target.value)} style={styles.input} />
+                        <div style={styles.helperText}>*Masukkan angka bulat dalam satuan <b>GRAM</b>.</div>
+                    </div>
+
+                    <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+                        <div style={{ flex: 1 }}>
+                            <label style={styles.headingLabel}>📸 FOTO BUKTI</label>
+                            <input type="file" accept="image/*" onChange={handleImageUpload} style={{...styles.input, padding: "10px"}} />
+                            {file && <div style={{fontSize: "13px", color: theme.success, marginTop: "5px"}}>✅ Foto siap</div>}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <label style={styles.headingLabel}>📍 LOKASI</label>
+                            <div style={{ display: "flex", gap: "5px" }}>
+                                <input type="text" value={location} placeholder="Klik tombol ->" readOnly style={{...styles.input, backgroundColor: "#f1f5f9", cursor: "not-allowed"}} />
+                                <button onClick={handleGetLocation} style={{ padding: "0 15px", borderRadius: "12px", border: "none", backgroundColor: theme.secondary, color: "white", cursor: "pointer" }}>📍</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <label style={styles.headingLabel}>📝 CATATAN</label>
+                        <input type="text" value={notes} maxLength={MAX_NOTES_LENGTH} placeholder="Keterangan singkat..." onChange={(e) => setNotes(e.target.value)} style={styles.input} />
+                        <div style={{ ...styles.helperText, textAlign: "right", color: notes.length >= MAX_NOTES_LENGTH ? theme.danger : theme.textLight }}>{notes.length}/{MAX_NOTES_LENGTH}</div>
+                    </div>
+                    
+                    <div style={{ display: "flex", gap: "20px", flexWrap: "wrap" }}>
+                        <div style={{ flex: 1 }}>
+                            <label style={styles.headingLabel}>🏷️ JENIS</label>
+                            <select value={type} onChange={(e) => setType(e.target.value)} style={styles.input}>
+                                <option value="Organic">🌱 Organik</option>
+                                <option value="Plastic">🛍️ Plastik</option>
+                                <option value="Hazardous">☢️ B3</option>
+                            </select>
+                        </div>
+                        <div style={{ flex: 1 }}>
+                            <label style={styles.headingLabel}>🚚 PENGELOLAAN</label>
+                            <select value={method} onChange={(e) => setMethod(e.target.value)} style={styles.input}>
+                                <option value="Maggot Farm">🪰 Maggot Farm</option>
+                                <option value="Recycling Center">♻️ Daur Ulang</option>
+                                <option value="Landfill">🚛 TPA</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <button onClick={handleReview} style={styles.buttonPrimary}>🔍 Konfirmasi Data</button>
+                </div>
+            </div>
+        </div>
+
+        {/* 2. KANAN: CHART ANALITIK (FIXED HEIGHT) */}
+        <div style={{ flex: "1", minWidth: "300px" }}>
+            <div style={{ ...styles.card, height: "100%", display: "flex", flexDirection: "column" }}>
+                <h3 style={{ margin: "0 0 10px 0", color: theme.textDark }}>📊 Komposisi Limbah</h3>
+                {/* ✅ UPDATED: Label Gram */}
+                <p style={{ fontSize: "13px", color: theme.textMedium, marginBottom: "20px" }}>Total berat (Gram) berdasarkan jenis sampah yang tercatat.</p>
+                
+                {/* ✅ UPDATED: Fixed Height for Chart Container */}
+                <div style={{ width: "100%", height: "300px" }}>
+                    {chartData.length > 0 ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                            <PieChart>
+                                <Pie
+                                    data={chartData}
+                                    cx="50%"
+                                    cy="50%"
+                                    innerRadius={60}
+                                    outerRadius={80}
+                                    paddingAngle={5}
+                                    dataKey="value"
+                                >
+                                    {chartData.map((entry, index) => (
+                                        <Cell key={`cell-${index}`} fill={CHART_COLORS[entry.name] || theme.primary} stroke="none" />
+                                    ))}
+                                </Pie>
+                                <Tooltip 
+                                    formatter={(value: number) => `${value.toLocaleString()} Gram`}
+                                    contentStyle={{ borderRadius: "10px", border: "none", boxShadow: theme.shadowCard }}
+                                />
+                                <Legend verticalAlign="bottom" height={36} iconType="circle" />
+                            </PieChart>
+                        </ResponsiveContainer>
+                    ) : (
+                        <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100%", color: theme.textLight, flexDirection: "column" }}>
+                            <span style={{ fontSize: "40px", marginBottom: "10px" }}>📉</span>
+                            Belum ada data
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+
+      </div>
+
+      {/* MODAL */}
       {showModal && (
         <div style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", backgroundColor: "rgba(30, 41, 59, 0.7)", backdropFilter: "blur(8px)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000 }}>
           <div style={{ ...styles.card, width: "90%", maxWidth: "500px", padding: "30px", boxShadow: theme.shadowModal, border: "none" }}>
@@ -284,22 +354,15 @@ export default function Home() {
         </div>
       )}
 
-      {/* HISTORY TABLE */}
+      {/* TABLE SECTION */}
       <div style={{ marginTop: "60px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "25px", flexWrap: "wrap", gap: "15px" }}>
           <div>
             <h3 style={{ color: theme.textDark, fontFamily: "'Inter', sans-serif", fontSize: "1.8rem", margin: 0, fontWeight: "700" }}>📊 Riwayat Laporan</h3>
             <p style={{ color: theme.textMedium, margin: "5px 0 0 0", fontSize: "14px" }}>Data tersimpan transparan di Blockchain</p>
           </div>
-          
           <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-            <input 
-              type="text" 
-              placeholder="🔍 Cari ID, Jenis, Catatan..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              style={{ padding: "12px 20px", borderRadius: "100px", border: `1px solid ${theme.border}`, width: "250px", outline: "none", fontSize: "14px", backgroundColor: theme.bgCard, boxShadow: theme.shadowCard }}
-            />
+            <input type="text" placeholder="🔍 Cari ID, Jenis, Catatan..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} style={{ padding: "12px 20px", borderRadius: "100px", border: `1px solid ${theme.border}`, width: "100%", maxWidth: "350px", outline: "none", fontSize: "14px", backgroundColor: theme.bgCard, boxShadow: theme.shadowCard }} />
             <button onClick={handleExportExcel} style={{ backgroundColor: theme.success, color: "white", padding: "10px 20px", borderRadius: "100px", border: "none", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", boxShadow: "0 4px 6px -1px rgb(16 185 129 / 0.2)" }}>📄 Download Excel</button>
           </div>
         </div>
@@ -369,16 +432,12 @@ export default function Home() {
                 </tbody>
               </table>
 
-              {/* PAGINATION CONTROLS */}
+              {/* PAGINATION */}
               {processedLogs.length > 0 && (
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "20px", borderTop: `1px solid ${theme.border}`, backgroundColor: "#f8fafc" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: theme.textMedium }}>
                     <span>Tampilkan:</span>
-                    <select 
-                      value={itemsPerPage} 
-                      onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }}
-                      style={{ padding: "6px", borderRadius: "8px", border: `1px solid ${theme.border}`, outline: "none" }}
-                    >
+                    <select value={itemsPerPage} onChange={(e) => { setItemsPerPage(Number(e.target.value)); setCurrentPage(1); }} style={{ padding: "6px", borderRadius: "8px", border: `1px solid ${theme.border}`, outline: "none" }}>
                       <option value={10}>10</option>
                       <option value={20}>20</option>
                       <option value={50}>50</option>
@@ -397,9 +456,7 @@ export default function Home() {
           )}
         </div>
       </div>
-      <div style={{ marginTop: "80px", textAlign: "center", color: theme.textLight, fontSize: "13px", fontWeight: "500" }}>
-        Built on Polygon & IPFS · Copyright © Farhan Fadilla / Terra Horizon 2025
-      </div>
+      <div style={{ marginTop: "80px", textAlign: "center", color: theme.textLight, fontSize: "13px", fontWeight: "500" }}>Built on Polygon & IPFS · Copyright © Farhan Fadilla / Terra Horizon 2025</div>
     </main>
   );
 }
